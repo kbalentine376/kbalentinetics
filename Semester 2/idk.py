@@ -17,6 +17,9 @@ canvas.pack()
 #MAKE THE PLAYER
 player = canvas.create_rectangle(180, 250, 180 + PLAYER_SIZE, 250 + PLAYER_SIZE, fill = "magenta")
 
+#PLAYER SCORE
+score_show = tk.Label(root, text = "Score " + )
+
 #MAKE A LIST TO HOLD ENEMIES
 enemies = []
 

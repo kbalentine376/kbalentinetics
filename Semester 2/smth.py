@@ -2,6 +2,8 @@ import tkinter as tk
 
 def say_hi():
     label.config(text = "You clicked the button")
+
+def say_bye():
     label.config(text = "Hello TKinter")
 
 #create the main window
@@ -13,6 +15,9 @@ label = tk.Label(root, text = "Hello TKinter")
 label.pack()
 
 button = tk.Button(root, text = "Click Me!", command = say_hi)
+button.pack()
+
+button = tk.Button(root, text = "Change Back!", command = say_bye)
 button.pack()
 
 #runs the program above
