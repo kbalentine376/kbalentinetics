@@ -7,6 +7,8 @@ HEIGHT = WIDTH * .75
 PLAYER_SIZE = 30
 ENEMY_SIZE = 20
 
+score = 0
+
 #BUILD OUR WINDOW
 root = tk.Tk()
 root.title("Avoid The Blocks!")
@@ -15,13 +17,16 @@ canvas = tk.Canvas(root, width = WIDTH, height = HEIGHT, bg = "black" )
 canvas.pack()
 
 #MAKE THE PLAYER
-player = canvas.create_rectangle(180, 250, 180 + PLAYER_SIZE, 250 + PLAYER_SIZE, fill = "magenta")
+player = canvas.create_rectangle(180, 250, 180 + PLAYER_SIZE, 250 + PLAYER_SIZE, fill = "blue")
 
 #PLAYER SCORE
-score_show = tk.Label(root, text = "Score " + )
+score_show = tk.Label(root, text = "Score " + "")
 
 #MAKE A LIST TO HOLD ENEMIES
 enemies = []
+
+#MAKE A LIST TO HOLD COINS
+coins = []
 
 #MAKE AN ALIVE TOOL
 alive = True
@@ -37,11 +42,17 @@ def move_right(event):
 root.bind("a", move_left)
 root.bind("d", move_right)
 
-#BAD GUYS
+#ENEMIES
 def spawn_enemy():
     x = random.randint(0, WIDTH - ENEMY_SIZE)
-    enemy = canvas.create_rectangle(x, 0, x + ENEMY_SIZE, ENEMY_SIZE, fill = "cyan")
+    enemy = canvas.create_rectangle(x, 0, x + ENEMY_SIZE, ENEMY_SIZE, fill = "red")
     enemies.append(enemy)
+
+#COLLECTIBLES
+def spawn_coin():
+    x = random.randint(0, WIDTH - ENEMY_SIZE)
+    coin = canvas.create_rectangle(x, 0, x + ENEMY_SIZE, ENEMY_SIZE, fill = "yellow")
+    coins.append(coin)
 
 #RUN GAME
 def run_game():
@@ -51,6 +62,19 @@ def run_game():
         canvas.create_text(WIDTH // 2, HEIGHT // 2, text = "GAME OVER", fill = "white", font = ("Arial", 24))
         return
     
+    if random.randint(1, 30) == 1:
+        spawn_coin
+
+    for coin in coins:
+        canvas.move(coin, 0, 10)
+
+        if canvas.bbox(coin) and canvas.bbox(player):
+            ex1, ey1, ex2, ey2 = canvas.bbox(coin)
+            px1, py1, px2, py2 = canvas.bbox(player)
+
+            if ex1 < px2 and ex2 > px1 and ey1 < py2 and ey2 > py1:
+                score + 1
+
     if random.randint(1, 20) == 1:
         spawn_enemy()
     
