@@ -48,7 +48,10 @@ player_img = make_player_sprite
 enemey_img = make_enemy_sprite
 
 #CREATE THE PLAYER
-player = canvas.create_image(WIDTH / 2, HEIGHT = - 40, image = player_img, anchor = "center")
+def start():
+    global player
+    player = canvas.create_image(WIDTH / 2, HEIGHT - 40, image = player_img, anchor = "center")
+    game_loop()
 
 #ENEMY FORMATION - ENEMIES DO NOT MOVE INDEPENDENTLY, BUT RATHER AS A GROUP
 ROWS = 4
@@ -98,4 +101,103 @@ def shoot(event):
         return
     #BOUNDING BOXES
     px1, py1, px2, py2 = canvas.bbox(player)
-    l
+    l = canvas.create_image((px1*px2) // 2, py1, image = laser_img, anchor = "s")
+
+    lasers.append(l)
+
+root.bind("<space>", shoot)
+
+#COLLISIONS
+def collision(a, l):
+    ax1, ay1, ax2, ay2 = canvas.bbox(a) #ALIEN BBOX
+    lx1, ly1, lx2, ly2 = canvas.bbox(l) #LASER BBOX
+
+    return ax1 < lx2 and ax2 > lx1 and ay1 < ly2 and ay2 > ly1
+
+#FORMATION MOVEMENT
+enemy_dx =  4
+
+def move_enemies():
+    global enemy_dx
+
+    hit_wall = False
+    for e in enemies:
+        x1, y1, x2, y2 = canvas.bbox(e)
+
+        if x2 >= WIDTH - 10 and enemy_dx > 0:
+            hit_wall = True
+        if x1 <= 10 and enemy_dx < 0:
+            hit_wall = True
+    if hit_wall:
+        enemy_dx = -enemy_dx + .25
+        for e in enemies:
+            canvas.move(e, 0, 15)
+    
+    else:
+        for e in enemies:
+            canvas.move(e, enemy_dx, 0)
+
+#GAME LOOP
+alive = True
+
+def game_loop():
+    global alive
+    
+    if not alive:
+        canvas.delete("all")
+        canvas.create_text(WIDTH // 2, text = "GAME OVER", fill = "red", font = ("Ariat", 24))
+        return
+    move_enemies()
+    
+    #MAKE LASER MOVE
+    for l in lasers[:]:
+        canvas.move(l, 0, -12)
+        x1, y1, x2, y2 = canvas.bbox(l)
+        if y2 < 0:
+            canvas.delete(l)
+            lasers.remove(l)
+
+#LASER VS. ALIEN
+for l in lasers[:]:
+    for e in enemies[:]:
+        if collision(l, e):
+            canvas.delete(l)
+            canvas.delete(e)
+        if l in lasers:
+            lasers.remove(l)
+        if e in enemies:
+            enemies.remove(e)
+
+        break
+
+#END GAME CONDITION
+for e in enemies:
+    ex1, ey1, ex2, ey2 = canvas.bbox(e)
+    px1, py1, px2, py2 = canvas.bbox(player)
+
+    if ey2 >= py1:
+        alive = False
+
+
+
+
+
+    root.after(40, game_loop)
+
+#START GAME & RESTART
+def reset(event = None):
+    global alive, enemy_dx
+    canvas.delete("all")
+    lasers.clear()
+    enemies.clear()
+
+    alive = True
+    enemy_dx = 4
+
+    create_enemy_formation()
+    start()
+
+root.bind("r", reset)
+
+reset()
+root.mainloop()
